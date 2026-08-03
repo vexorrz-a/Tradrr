@@ -188,4 +188,5 @@ This is a **practice/educational simulator** only. No real money involved. Stock
 
 ---
 
-Made with ❤️ for traders learning the market 📈
+Made with AI and a sprinkle of my human (if youll believe) for traders learning the market 📈
+ik nobody aint readin untill here so if sb. sees it appreciate your effort mann
