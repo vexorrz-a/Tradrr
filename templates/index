@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Market Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(148, 163, 184, 0.1);
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 40px;
+        }
+
+        .stat {
+            text-align: right;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+
+        .positive {
+            color: #10b981;
+        }
+
+        .negative {
+            color: #ef4444;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            font-size: 24px;
+        }
+
+        .trading-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #cbd5e1;
+        }
+
+        input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: #e2e8f0;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #60a5fa;
+            background: rgba(15, 23, 42, 0.9);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }
+
+        input::placeholder {
+            color: #64748b;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        button {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-buy {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-buy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-sell {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .btn-sell:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3);
+        }
+
+        .portfolio-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .holding {
+            background: rgba(15, 23, 42, 0.4);
+            border-left: 3px solid #60a5fa;
+            border-radius: 6px;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .holding:hover {
+            background: rgba(15, 23, 42, 0.6);
+            border-left-color: #a78bfa;
+        }
+
+        .holding-info {
+            flex: 1;
+        }
+
+        .holding-symbol {
+            font-size: 15px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 4px;
+        }
+
+        .holding-details {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .holding-value {
+            text-align: right;
+        }
+
+        .holding-amount {
+            font-size: 14px;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+
+        .holding-price {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            color: #64748b;
+        }
+
+        .empty-state svg {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .history-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 6px;
+            padding: 12px 14px;
+            border-left: 3px solid;
+            font-size: 13px;
+        }
+
+        .history-buy {
+            border-left-color: #10b981;
+        }
+
+        .history-sell {
+            border-left-color: #ef4444;
+        }
+
+        .history-symbol {
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 4px;
+        }
+
+        .history-meta {
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .price-check {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .price-check input {
+            flex: 1;
+        }
+
+        .btn-check {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .btn-check:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(139, 92, 246, 0.3);
+        }
+
+        .price-result {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            color: #e9d5ff;
+        }
+
+        .message {
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .message.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-stats {
+                gap: 20px;
+            }
+
+            .stat-value {
+                font-size: 20px;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #60a5fa;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📈 Stock Simulator</h1>
+            <div class="header-stats">
+                <div class="stat">
+                    <div class="stat-label">Portfolio Value</div>
+                    <div class="stat-value" id="totalValue">$10,000.00</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Cash Available</div>
+                    <div class="stat-value" id="cashBalance">$10,000.00</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <!-- BUY SECTION -->
+            <div class="card">
+                <h2><span class="icon">🛒</span> Buy</h2>
+                <div class="trading-section">
+                    <div class="input-group">
+                        <label>Symbol (e.g., AAPL, GOOGL, MSFT)</label>
+                        <input type="text" id="buySymbol" placeholder="Enter symbol" maxlength="10">
+                    </div>
+                    <div class="input-group">
+                        <label>Quantity</label>
+                        <input type="number" id="buyQuantity" placeholder="Number of shares" min="1">
+                    </div>
+                    <div class="button-group">
+                        <button class="btn-buy" onclick="buy()">Buy</button>
+                        <button class="btn-check" onclick="checkBuyPrice()">Check Price</button>
+                    </div>
+                    <div id="buyMessage"></div>
+                </div>
+            </div>
+
+            <!-- SELL SECTION -->
+            <div class="card">
+                <h2><span class="icon">💰</span> Sell</h2>
+                <div class="trading-section">
+                    <div class="input-group">
+                        <label>Symbol</label>
+                        <input type="text" id="sellSymbol" placeholder="Enter symbol" maxlength="10">
+                    </div>
+                    <div class="input-group">
+                        <label>Quantity</label>
+                        <input type="number" id="sellQuantity" placeholder="Number of shares" min="1">
+                    </div>
+                    <div class="button-group">
+                        <button class="btn-sell" onclick="sell()">Sell</button>
+                        <button class="btn-check" onclick="checkSellPrice()">Check Price</button>
+                    </div>
+                    <div id="sellMessage"></div>
+                </div>
+            </div>
+
+            <!-- PORTFOLIO SECTION -->
+            <div class="card">
+                <h2><span class="icon">🎯</span> Your Holdings</h2>
+                <div class="portfolio-section" id="portfolio">
+                    <div class="empty-state">
+                        <div>No holdings yet</div>
+                        <div style="font-size: 12px; margin-top: 10px;">Start trading to build your portfolio</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HISTORY SECTION -->
+            <div class="card">
+                <h2><span class="icon">📋</span> Transaction History</h2>
+                <div class="history-section" id="history">
+                    <div class="empty-state">
+                        <div>No transactions yet</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load portfolio on page load
+        loadPortfolio();
+        loadHistory();
+        setInterval(loadPortfolio, 5000); // Refresh every 5 seconds
+        setInterval(loadHistory, 5000);
+
+        async function loadPortfolio() {
+            try {
+                const response = await fetch('/api/portfolio');
+                const data = await response.json();
+                
+                document.getElementById('totalValue').textContent = `$${data.total_value.toFixed(2)}`;
+                document.getElementById('cashBalance').textContent = `$${data.cash.toFixed(2)}`;
+                
+                const portfolioDiv = document.getElementById('portfolio');
+                
+                if (data.holdings.length === 0) {
+                    portfolioDiv.innerHTML = `
+                        <div class="empty-state">
+                            <div>No holdings yet</div>
+                            <div style="font-size: 12px; margin-top: 10px;">Start trading to build your portfolio</div>
+                        </div>
+                    `;
+                } else {
+                    portfolioDiv.innerHTML = data.holdings.map(h => `
+                        <div class="holding">
+                            <div class="holding-info">
+                                <div class="holding-symbol">${h.symbol}</div>
+                                <div class="holding-details">${h.quantity} shares @ $${h.price.toFixed(2)}</div>
+                            </div>
+                            <div class="holding-value">
+                                <div class="holding-amount">$${h.value.toFixed(2)}</div>
+                                <div class="holding-price">+${((h.value / h.quantity) * 0.05).toFixed(2)}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading portfolio:', error);
+            }
+        }
+
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/history');
+                const data = await response.json();
+                
+                const historyDiv = document.getElementById('history');
+                
+                if (data.history.length === 0) {
+                    historyDiv.innerHTML = `
+                        <div class="empty-state">
+                            <div>No transactions yet</div>
+                        </div>
+                    `;
+                } else {
+                    historyDiv.innerHTML = data.history.reverse().map(h => `
+                        <div class="history-item history-${h.type.toLowerCase()}">
+                            <div class="history-symbol">${h.type} ${h.quantity} ${h.symbol}</div>
+                            <div class="history-meta">@ $${h.price.toFixed(2)} = $${h.total.toFixed(2)}</div>
+                            <div class="history-meta">${h.timestamp}</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
+        }
+
+        async function buy() {
+            const symbol = document.getElementById('buySymbol').value.toUpperCase();
+            const quantity = parseInt(document.getElementById('buyQuantity').value);
+            const messageDiv = document.getElementById('buyMessage');
+            
+            if (!symbol || !quantity) {
+                showMessage(messageDiv, 'Please fill in all fields', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/buy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symbol, quantity })
+                });
+                
+                const data = await response.json();
+                showMessage(messageDiv, data.message, data.success ? 'success' : 'error');
+                
+                if (data.success) {
+                    document.getElementById('buySymbol').value = '';
+                    document.getElementById('buyQuantity').value = '';
+                    loadPortfolio();
+                    loadHistory();
+                }
+            } catch (error) {
+                showMessage(messageDiv, 'Error executing trade', 'error');
+            }
+        }
+
+        async function sell() {
+            const symbol = document.getElementById('sellSymbol').value.toUpperCase();
+            const quantity = parseInt(document.getElementById('sellQuantity').value);
+            const messageDiv = document.getElementById('sellMessage');
+            
+            if (!symbol || !quantity) {
+                showMessage(messageDiv, 'Please fill in all fields', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/sell', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symbol, quantity })
+                });
+                
+                const data = await response.json();
+                showMessage(messageDiv, data.message, data.success ? 'success' : 'error');
+                
+                if (data.success) {
+                    document.getElementById('sellSymbol').value = '';
+                    document.getElementById('sellQuantity').value = '';
+                    loadPortfolio();
+                    loadHistory();
+                }
+            } catch (error) {
+                showMessage(messageDiv, 'Error executing trade', 'error');
+            }
+        }
+
+        async function checkBuyPrice() {
+            const symbol = document.getElementById('buySymbol').value.toUpperCase();
+            const messageDiv = document.getElementById('buyMessage');
+            
+            if (!symbol) {
+                showMessage(messageDiv, 'Enter a symbol first', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/price/${symbol}`);
+                const data = await response.json();
+                
+                if (data.price > 0) {
+                    showMessage(messageDiv, `${symbol}: $${data.price.toFixed(2)}`, 'success');
+                } else {
+                    showMessage(messageDiv, `Could not fetch price for ${symbol}`, 'error');
+                }
+            } catch (error) {
+                showMessage(messageDiv, 'Error fetching price', 'error');
+            }
+        }
+
+        async function checkSellPrice() {
+            const symbol = document.getElementById('sellSymbol').value.toUpperCase();
+            const messageDiv = document.getElementById('sellMessage');
+            
+            if (!symbol) {
+                showMessage(messageDiv, 'Enter a symbol first', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/price/${symbol}`);
+                const data = await response.json();
+                
+                if (data.price > 0) {
+                    showMessage(messageDiv, `${symbol}: $${data.price.toFixed(2)}`, 'success');
+                } else {
+                    showMessage(messageDiv, `Could not fetch price for ${symbol}`, 'error');
+                }
+            } catch (error) {
+                showMessage(messageDiv, 'Error fetching price', 'error');
+            }
+        }
+
+        function showMessage(element, text, type) {
+            element.innerHTML = `<div class="message ${type}">${text}</div>`;
+        }
+    </script>
+</body>
+</html>
